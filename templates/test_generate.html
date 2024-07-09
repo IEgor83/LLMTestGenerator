@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Input</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <div id="loading">Подождите...</div>
+    <h1>Введите тему теста</h1>
+    <form method="post" onsubmit="showLoading()">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сгенерировать</button>
+    </form>
+    {% if text %}
+        <p class="test-options">Ответ: {{ status }}</p>
+        <div class="container">
+            {% if test %}
+                <h1>{{ test.name }}</h1>
+                <p class="test-options">Created at: {{ test.created_at }}</p>
+                <p class="test-options">Updated at: {{ test.updated_at }}</p>
+
+                <h2 style="text-align: center">Вопросы:</h2>
+                <div class="questions">
+                    <ul>
+                        {% for question in test.questions.all %}
+                            <div class="question">
+                                <li>
+                                    <strong style="font-size: 20px;">{{ question.name }}</strong>
+                                    <p class="question-params">Type: {{ question.get_type_display }}</p>
+                                    <p class="question-params">Points: {{ question.points }}</p>
+                                    {% if question.type == types.Single %}
+                                        <strong>Варианты ответов:</strong>
+                                        <ul>
+                                            {% for answer in question.answers.all %}
+                                                <li>{{ answer.value }} {% if answer.is_correct %}(Correct){% endif %}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% elif question.type == types.Multiple %}
+                                        <strong>Варианты ответов:</strong>
+                                        <ul>
+                                            {% for answer in question.answers.all %}
+                                                <li>{{ answer.value }} {% if answer.is_correct %}(Correct){% endif %}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% elif question.type == types.Text %}
+                                        <strong>Правильный ответ:</strong>
+                                        <ul>
+                                            {% for answer in question.answers.all %}
+                                                <li>{{ answer.value }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            </div>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>
